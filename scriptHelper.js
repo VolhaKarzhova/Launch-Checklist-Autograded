@@ -2,20 +2,20 @@
 
 require('cross-fetch/polyfill');
 
-function addDestinationInfo(document, name, diameter, star, distance, moons, imageUrl) {
+function addDestinationInfo(document, name, diameter, star, distance, moons, image) {
     // Here is the HTML formatting for our mission target div.
-    /*
-                 <h2>Mission Destination</h2>
+    const missionTarget = document.getElementById("missionTarget");
+    missionTarget.innerHTML = `
+       <h2>Mission Destination</h2>
                  <ol>
-                     <li>Name: </li>
-                     <li>Diameter: </li>
+                     <li>Name: ${name}</li>
+                     <li>Diameter:  ${diameter}</li>
                      <li>Star: ${star}</li>
-                     <li>Distance from Earth: </li>
-                     <li>Number of Moons: </li>
+                     <li>Distance from Earth: ${distance}</li>
+                     <li>Number of Moons: ${moons}</li>
                  </ol>
-                 <img src="">
-    */
-}
+             <img src="${image}">`;
+};
 
 function validateInput(testInput) {
     if (testInput === '') {
@@ -32,14 +32,9 @@ function validateInput(testInput) {
 function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
     setDefaultFaultyItems(document);
     const fields = [pilot, copilot, fuelLevel, cargoLevel];
-    let emptyFields = [];
-    for (let index = 0; index < fields.length; index++) {
-        if (validateInput(fields[index]) === "Empty") {
-            emptyFields.push(fields[index]);
-        };
-    };
-    if (emptyFields.length > 0) {
-        alert(`Oops! Empty fields are not allowed. Data is missing in ${emptyFields.length} field(s)`);
+    const emptyFieldsCount = getNumberOfEmptyFileds(fields);
+    if (emptyFieldsCount > 0) {
+        alert(`Oops! Empty fields are not allowed. Data is missing in ${emptyFieldsCount} field(s)`);
         return;
     };
     if (validateInput(fuelLevel) === "Not a Number") {
@@ -71,7 +66,7 @@ function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
 function assignLaunchStatus(launchStatus, isReadyToLaunch) {
     let status = "Shuttle Not Ready for Launch";
     let statusColor = "red";
-    if(isReadyToLaunch) {
+    if (isReadyToLaunch) {
         status = "Shuttle is Ready for Launch"
         statusColor = "green";
     }
@@ -81,7 +76,7 @@ function assignLaunchStatus(launchStatus, isReadyToLaunch) {
 
 function assignFuelStatus(fuelStatus, isFuelEnough) {
     let status = "Fuel level too low for launch";
-    if(isFuelEnough) {
+    if (isFuelEnough) {
         status = "Fuel level high enough for launch";
     }
     fuelStatus.innerHTML = status;
@@ -89,13 +84,23 @@ function assignFuelStatus(fuelStatus, isFuelEnough) {
 
 function assignCargoStatus(cargoStatus, isCargoMassAllowed) {
     let status = "Cargo mass too heavy for launch";
-    if(isCargoMassAllowed) {
+    if (isCargoMassAllowed) {
         status = "Cargo mass low enough for launch";
     }
     cargoStatus.innerHTML = status;
 }
 
-function setDefaultFaultyItems(document){
+function getNumberOfEmptyFileds(fields){
+    let emptyFields = [];
+    for (let index = 0; index < fields.length; index++) {
+        if (validateInput(fields[index]) === "Empty") {
+            emptyFields.push(fields[index]);
+        };
+    };
+    return emptyFields.length;
+}
+
+function setDefaultFaultyItems(document) {
     document.getElementById("faultyItems").style.visibility = "hidden";
     document.getElementById("launchStatus").innerHTML = "Awaiting Information Before Launch";
     document.getElementById("launchStatus").style.color = "black";
@@ -105,13 +110,16 @@ function setDefaultFaultyItems(document){
 async function myFetch() {
     let planetsReturned;
 
-    planetsReturned = await fetch().then(function (response) {
+    planetsReturned = await fetch("https://handlers.education.launchcode.org/static/planets.json").then(function (response) {
+        return response.json();
     });
 
     return planetsReturned;
 }
 
 function pickPlanet(planets) {
+    let planetIndex = Math.floor(Math.random() * planets.length);
+    return planets[planetIndex];
 }
 
 module.exports.addDestinationInfo = addDestinationInfo;
