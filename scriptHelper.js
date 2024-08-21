@@ -30,6 +30,7 @@ function validateInput(testInput) {
 }
 
 function formSubmission(document, list, pilot, copilot, fuelLevel, cargoLevel) {
+    setDefaultFaultyItems(document);
     const fields = [pilot, copilot, fuelLevel, cargoLevel];
     let emptyFields = [];
     for (let index = 0; index < fields.length; index++) {
@@ -92,6 +93,12 @@ function assignCargoStatus(cargoStatus, isCargoMassAllowed) {
         status = "Cargo mass low enough for launch";
     }
     cargoStatus.innerHTML = status;
+}
+
+function setDefaultFaultyItems(document){
+    document.getElementById("faultyItems").style.visibility = "hidden";
+    document.getElementById("launchStatus").innerHTML = "Awaiting Information Before Launch";
+    document.getElementById("launchStatus").style.color = "black";
 }
 
 
